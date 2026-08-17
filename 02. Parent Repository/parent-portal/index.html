@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parent Portal | XYZ Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/shared/xyz-ai-widget.css">
+</head>
+<body data-user-role="parent" data-user-name="Mrs. Sharma">
+
+  <div class="glow-container">
+    <div class="glow-sphere"></div>
+  </div>
+
+  <nav>
+    <div class="nav-brand">
+      <span class="logo-accent">XYZ</span> Portal
+    </div>
+    <div class="nav-profile">
+      <div class="profile-details">
+        <span class="user-name">Mrs. Sharma</span>
+        <span class="user-sub">Parent of Rahul Sharma (Grade 10)</span>
+      </div>
+      <div class="avatar">MS</div>
+    </div>
+  </nav>
+
+  <main class="dashboard">
+    <header class="dash-header">
+      <h1>Parent Dashboard</h1>
+      <p class="dash-subtitle">Monitor your child's attendance records, academic report cards, and active school tickets.</p>
+    </header>
+
+    <div class="dash-grid">
+      <!-- ML Attendance Prediction Card -->
+      <div class="dash-card prediction-card">
+        <h2>AI Predictive Analysis (ML)</h2>
+        <div class="prediction-box">
+          <div class="pred-num" id="pred-risk-val">--%</div>
+          <div class="pred-label">Absence Risk (Next Session)</div>
+        </div>
+        <p class="pred-desc" id="pred-risk-desc">Calculating machine learning attendance risk prognosis...</p>
+      </div>
+
+      <!-- Attendance Summary Card -->
+      <div class="dash-card att-summary-card">
+        <h2>Rahul's Attendance</h2>
+        <div class="gauge-section">
+          <div class="circular-progress" id="attendance-gauge" style="background: conic-gradient(var(--accent-color) 328.32deg, #1e293b 0deg);">
+            <div class="circular-value" id="attendance-value">91.2%</div>
+          </div>
+          <div class="gauge-meta">
+            <div class="meta-item">
+              <span class="label">Academic Year</span>
+              <span class="val">2026-27</span>
+            </div>
+            <div class="meta-item">
+              <span class="label">Status</span>
+              <span class="val text-success">Good Stand</span>
+            </div>
+          </div>
+        </div>
+
+        <h3>Recent Calendar Logs</h3>
+        <div class="calendar-list" id="calendar-logs-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Teacher Feedback/Comments -->
+      <div class="dash-card feedback-card">
+        <h2>Teacher Comments</h2>
+        <div class="feedback-list">
+          <div class="feedback-item">
+            <div class="feedback-meta">
+              <strong>Mr. Kumar</strong>
+              <span>Mathematics • Aug 14</span>
+            </div>
+            <p>"Rahul exhibits high logical capability. However, he has missed two algebra homework submissions recently. Please check his home assignments."</p>
+          </div>
+          <div class="feedback-item">
+            <div class="feedback-meta">
+              <strong>Mrs. Gupta</strong>
+              <span>Science • Aug 08</span>
+            </div>
+            <p>"Excellent laboratory work this week. He is active in physics experiments and scored high in the MCQ review."</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Card Card -->
+      <div class="dash-card grades-card">
+        <h2>Term 1 Grade Record</h2>
+        <div class="grades-table">
+          <div class="grade-row">
+            <span>Mathematics</span>
+            <strong class="grade-val">A</strong>
+          </div>
+          <div class="grade-row">
+            <span>Science</span>
+            <strong class="grade-val">B+</strong>
+          </div>
+          <div class="grade-row">
+            <span>English Literature</span>
+            <strong class="grade-val">A-</strong>
+          </div>
+          <div class="grade-row">
+            <span>Social Studies</span>
+            <strong class="grade-val">A</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call Requests / Escalations Status -->
+      <div class="dash-card escalations-card">
+        <h2>Callback & Support Requests</h2>
+        <div class="escalation-items-list" id="escalation-items-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/shared/xyz-ai-widget.js" defer></script>
+  
+  <script>
+    function syncPortalData() {
+      fetch('/api/db-dump')
+        .then(res => res.json())
+        .then(data => {
+          const rahul = data.students.find(s => s.id === "S101");
+          if (rahul) {
+            updateAttendanceGauge(rahul.attendance);
+            updateCalendarLogs(rahul.history);
+          }
+          
+          // Filters escalation tickets raised by Mrs. Sharma
+          const tickets = data.escalations.filter(e => e.userName.includes("Mrs. Sharma"));
+          updateEscalationsList(tickets);
+        })
+        .catch(err => console.error("Parent Portal sync error:", err));
+
+      // Fetch Machine Learning predictions for S101 (Rahul)
+      fetch('/api/predictions/S101')
+        .then(res => res.json())
+        .then(pred => {
+          const riskEl = document.getElementById("pred-risk-val");
+          const descEl = document.getElementById("pred-risk-desc");
+          if (riskEl && descEl) {
+            riskEl.innerText = `${pred.absenceRisk}%`;
+            
+            // Highlight color based on risk levels
+            riskEl.className = "pred-num " + (pred.absenceRisk >= 60 ? 'text-danger' : (pred.absenceRisk >= 35 ? 'text-warning' : 'text-success'));
+
+            if (pred.absenceRisk >= 60) {
+              descEl.innerText = "CRITICAL: Logistic Regression model predicts a high likelihood of absence next session based on recent grades and past absences.";
+            } else if (pred.absenceRisk >= 35) {
+              descEl.innerText = "WARNING: Moderate probability of absence. Monitor attendance closely and check homework progress.";
+            } else {
+              descEl.innerText = "EXCELLENT: Low risk of absence predicted. Rahul remains in outstanding academic standing.";
+            }
+          }
+        })
+        .catch(err => console.error("ML Risk prediction fetch error:", err));
+    }
+
+    function updateAttendanceGauge(attendance) {
+      const gauge = document.getElementById("attendance-gauge");
+      const valText = document.getElementById("attendance-value");
+      if (!gauge || !valText) return;
+
+      valText.innerText = `${attendance}%`;
+      const deg = (attendance / 100) * 360;
+      gauge.style.background = `conic-gradient(var(--accent-color) ${deg}deg, #1e293b 0deg)`;
+    }
+
+    function updateCalendarLogs(history) {
+      const list = document.getElementById("calendar-logs-list");
+      if (!list) return;
+
+      if (!history || history.length === 0) {
+        list.innerHTML = `<div class="empty-state">No attendance records.</div>`;
+        return;
+      }
+
+      // Display the last 5 days
+      list.innerHTML = history.slice(0, 5).map(h => {
+        const isPresent = h.status === 'Present';
+        const badgeClass = isPresent ? 'badge-present' : 'badge-absent';
+        const reasonStr = h.reason ? `<span class="log-reason">(${h.reason})</span>` : '';
+        
+        return `
+          <div class="calendar-row">
+            <span class="log-date">${h.date}</span>
+            <div class="status-wrap">
+              <span class="status-badge ${badgeClass}">${h.status}</span>
+              ${reasonStr}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateEscalationsList(tickets) {
+      const list = document.getElementById("escalation-items-list");
+      if (!list) return;
+
+      if (!tickets || tickets.length === 0) {
+        list.innerHTML = `
+          <div class="empty-esc-state">
+            <p>No active callback requests. Need to speak to a teacher?</p>
+            <p class="help-hint">Type <strong>"I want to talk to the teacher"</strong> in the chat helper in the bottom right corner.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.innerHTML = tickets.map(t => {
+        const dateStr = new Date(t.timestamp).toLocaleDateString();
+        return `
+          <div class="esc-item">
+            <div class="esc-item-head">
+              <span class="esc-id">${t.id}</span>
+              <span class="status-tag status-confirmed">${t.status}</span>
+            </div>
+            <p class="esc-msg">"${t.message}"</p>
+            <div class="esc-footer">
+              <span>Type: <strong>${t.type}</strong></span>
+              <span>Submitted: ${dateStr}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Cross-iframe communication listeners
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'XYZ_DATA_SYNC_SYNCED') {
+        console.log("[Parent Portal] Sync message received, updating dashboard UI...");
+        syncPortalData();
+      }
+    });
+
+    document.addEventListener('xyz-erp-sync', () => {
+      console.log("[Parent Portal] Local widget sync triggered, reloading data...");
+      syncPortalData();
+    });
+
+    // Run on load
+    syncPortalData();
+  </script>
+</body>
+</html>

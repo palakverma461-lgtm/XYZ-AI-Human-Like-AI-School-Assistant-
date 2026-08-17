@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Management Portal | XYZ Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/shared/xyz-ai-widget.css">
+</head>
+<body data-user-role="principal" data-user-name="Principal">
+
+  <div class="glow-container">
+    <div class="glow-sphere"></div>
+  </div>
+
+  <nav>
+    <div class="nav-brand">
+      <span class="logo-accent">XYZ</span> Admin
+    </div>
+    <div class="nav-profile">
+      <div class="profile-details">
+        <span class="user-name">Dr. Shastri</span>
+        <span class="user-sub">Principal • School Management</span>
+      </div>
+      <div class="avatar">DS</div>
+    </div>
+  </nav>
+
+  <main class="dashboard">
+    <header class="dash-header">
+      <h1>School Analytics Dashboard</h1>
+      <p class="dash-subtitle">School-wide attendance audits, class breakdowns, threshold alerts, and active ticket monitoring.</p>
+    </header>
+
+    <!-- Key Metrics row -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <span class="card-label">School Attendance Avg</span>
+        <span class="card-val text-warning" id="school-avg-val">90.9%</span>
+      </div>
+      <div class="metric-card">
+        <span class="card-label">Total Student Enrollment</span>
+        <span class="card-val" id="total-students-val">4</span>
+      </div>
+      <div class="metric-card">
+        <span class="card-label">Active Support Tickets</span>
+        <span class="card-val text-danger" id="active-tickets-val">1</span>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- Attendance analytics trends -->
+      <div class="dash-card charts-card">
+        <h2>Department & Class Breakdowns</h2>
+        
+        <div class="class-progress-list" id="class-progress-list">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <h3 class="sub-section-title">Critical Threshold Alerts (Below 85% Attendance)</h3>
+        <div class="warning-alert-list" id="threshold-warnings-list">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <h3 class="sub-section-title" style="margin-top: 24px;">ML Next-Session Absence Risk Forecast</h3>
+        <div class="ml-risk-forecast-list" id="ml-risk-forecast-list">
+          <div class="loading-cell">Loading ML risk predictions...</div>
+        </div>
+      </div>
+
+      <!-- School-wide Escalations Log -->
+      <div class="dash-card tickets-card">
+        <h2>School-Wide Parent Tickets</h2>
+        <div class="tickets-timeline-list" id="admin-tickets-list">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/shared/xyz-ai-widget.js" defer></script>
+
+  <script>
+    function syncPortalData() {
+      // Get attendance stats (Principal role auth headers)
+      fetch('/api/attendance', {
+        headers: { 'x-user-role': 'principal' }
+      })
+      .then(res => res.json())
+      .then(stats => {
+        document.getElementById("school-avg-val").innerText = `${stats.overall}%`;
+        document.getElementById("total-students-val").innerText = stats.studentsCount;
+
+        // Color override based on thresholds
+        const avgEl = document.getElementById("school-avg-val");
+        avgEl.className = "card-val " + (stats.overall >= 90 ? 'text-success' : (stats.overall >= 85 ? 'text-warning' : 'text-danger'));
+
+        // Render Class progress bars
+        renderClassWiseBars(stats.classWise);
+
+        // Render warnings
+        renderWarnings(stats.belowThreshold);
+      })
+      .catch(err => console.error("Principal attendance stats query error:", err));
+
+      // Fetch Machine Learning Predictions for all students S101-S104
+      const studentIds = ["S101", "S102", "S103", "S104"];
+      Promise.all(studentIds.map(id => 
+        fetch(`/api/predictions/${id}`).then(res => res.json())
+      ))
+      .then(predictions => {
+        renderMlRiskList(predictions);
+      })
+      .catch(err => console.error("ML Risk forecasts query error:", err));
+
+      // Get all escalations
+      fetch('/api/escalations', {
+        headers: { 'x-user-role': 'principal' }
+      })
+      .then(res => res.json())
+      .then(escalations => {
+        document.getElementById("active-tickets-val").innerText = escalations.length;
+        renderTicketsList(escalations);
+      })
+      .catch(err => console.error("Principal escalations query error:", err));
+    }
+
+    function renderMlRiskList(predictions) {
+      const list = document.getElementById("ml-risk-forecast-list");
+      if (!list) return;
+
+      list.innerHTML = predictions.map(p => {
+        const badgeStyle = p.absenceRisk >= 60 ? 'background: rgba(244, 63, 94, 0.15); color: #f43f5e;' : (p.absenceRisk >= 35 ? 'background: rgba(245, 158, 11, 0.15); color: #f59e0b;' : 'background: rgba(16, 185, 129, 0.15); color: #10b981;');
+        const statusLabel = p.absenceRisk >= 60 ? 'High Risk' : (p.absenceRisk >= 35 ? 'Moderate' : 'Low Risk');
+        
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:10px; margin-bottom:8px; font-size:12.5px;">
+            <span><strong>${p.studentName}</strong> (${p.class})</span>
+            <span style="font-size:10px; font-weight:700; text-transform:uppercase; padding:2px 8px; border-radius:4px; ${badgeStyle}">
+              ${statusLabel}: ${p.absenceRisk}%
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderClassWiseBars(classWise) {
+      const list = document.getElementById("class-progress-list");
+      if (!list) return;
+
+      list.innerHTML = Object.keys(classWise).map(className => {
+        const percentage = classWise[className];
+        return `
+          <div class="class-bar-row">
+            <div class="bar-header">
+              <span class="class-name"><strong>${className}</strong></span>
+              <span class="class-pct">${percentage}%</span>
+            </div>
+            <div class="bar-container">
+              <div class="bar-fill" style="width: ${percentage}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderWarnings(warnings) {
+      const list = document.getElementById("threshold-warnings-list");
+      if (!list) return;
+
+      if (!warnings || warnings.length === 0) {
+        list.innerHTML = `<div class="success-notice">All students are currently operating above the 85% attendance threshold.</div>`;
+        return;
+      }
+
+      list.innerHTML = warnings.map(w => {
+        return `
+          <div class="warning-item">
+            <div class="warning-icon">&#9888;</div>
+            <div class="warning-details">
+              <span class="w-name"><strong>${w.name}</strong> (${w.class})</span>
+              <span class="w-desc">Attendance has slipped to <strong class="text-danger">${w.attendance}%</strong>. Contact parent recommended.</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderTicketsList(tickets) {
+      const list = document.getElementById("admin-tickets-list");
+      if (!list) return;
+
+      if (!tickets || tickets.length === 0) {
+        list.innerHTML = `<div class="empty-state">No active parental tickets logged.</div>`;
+        return;
+      }
+
+      list.innerHTML = tickets.map(t => {
+        const dateStr = new Date(t.timestamp).toLocaleDateString();
+        const badgeClass = t.type === "Teacher Call" ? "badge-staff" : "badge-mgmt";
+        return `
+          <div class="ticket-item">
+            <div class="ticket-header">
+              <span class="ticket-id">${t.id}</span>
+              <span class="badge ${badgeClass}">${t.type}</span>
+            </div>
+            <p class="ticket-message">"${t.message}"</p>
+            <div class="ticket-meta">
+              <span>Author: <strong>${t.userName}</strong> (${t.userRole})</span>
+              <span>Date: ${dateStr}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Cross-iframe communication listeners
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'XYZ_DATA_SYNC_SYNCED') {
+        console.log("[Management Portal] Sync message received, updating dashboard UI...");
+        syncPortalData();
+      }
+    });
+
+    document.addEventListener('xyz-erp-sync', () => {
+      console.log("[Management Portal] Local widget sync triggered, reloading data...");
+      syncPortalData();
+    });
+
+    // Run on load
+    syncPortalData();
+  </script>
+</body>
+</html>

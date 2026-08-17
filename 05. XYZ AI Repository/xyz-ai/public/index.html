@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School ERP Ecosystem & XYZ AI Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="stars"></div>
+  
+  <header>
+    <div class="logo">
+      <span class="logo-accent">XYZ</span> AI School Ecosystem
+    </div>
+    <div class="api-key-container">
+      <label for="gemini-key-input">Gemini API Key (Optional):</label>
+      <input type="password" id="gemini-key-input" placeholder="Paste your API key here for live AI...">
+      <button class="btn btn-save-key" id="save-key-btn">Save Key</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Standalone School ERP Ecosystem</h1>
+      <p class="subtitle">Experience human-like AI orchestration across Students, Parents, Teachers, and Principals.</p>
+      
+      <div class="view-toggle-bar">
+        <button class="btn btn-view active" id="view-cards-btn">Hub Dashboard</button>
+        <button class="btn btn-view" id="view-split-btn">Split-Screen ERP Mode</button>
+      </div>
+    </section>
+
+    <!-- HUB DASHBOARD VIEW -->
+    <section class="portal-grid active" id="portals-view">
+      <!-- Student Card -->
+      <div class="portal-card student">
+        <div class="card-glow"></div>
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 14c4 0 6-2 6-6V5c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2v3c0 4 2 6 6 6z"/><path d="M6 11h12M12 14v5M9 22h6"/></svg>
+        </div>
+        <h2>Student Portal</h2>
+        <span class="badge badge-student">Student Role</span>
+        <p>View grades, schedules, and attendance metrics. Access the friendly academic assistant persona.</p>
+        <a href="/student" target="_blank" class="btn btn-portal">Open Portal &rarr;</a>
+      </div>
+
+      <!-- Parent Card -->
+      <div class="portal-card parent">
+        <div class="card-glow"></div>
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h2>Parent Portal</h2>
+        <span class="badge badge-parent">Parent Role</span>
+        <p>Monitor child's academic records, monthly calendar. Access the caring, patient support persona.</p>
+        <a href="/parent" target="_blank" class="btn btn-portal">Open Portal &rarr;</a>
+      </div>
+
+      <!-- Staff Card -->
+      <div class="portal-card staff">
+        <div class="card-glow"></div>
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V3.5A2.5 2.5 0 0 1 6.5 1M20 3.5V22M12 6v6m-3-3h6"/></svg>
+        </div>
+        <h2>Staff Portal</h2>
+        <span class="badge badge-staff">Teacher Role</span>
+        <p>Mark class rosters and submit attendance. Intercept incoming call requests from parents.</p>
+        <a href="/staff" target="_blank" class="btn btn-portal">Open Portal &rarr;</a>
+      </div>
+
+      <!-- Management Card -->
+      <div class="portal-card management">
+        <div class="card-glow"></div>
+        <div class="portal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        </div>
+        <h2>Management Portal</h2>
+        <span class="badge badge-mgmt">Principal Role</span>
+        <p>Explore school-wide analytics, trends, department performance graphs, and safety audits.</p>
+        <a href="/management" target="_blank" class="btn btn-portal">Open Portal &rarr;</a>
+      </div>
+    </section>
+
+    <!-- SPLIT-SCREEN WORKSPACE VIEW -->
+    <section class="split-view" id="split-view-panel">
+      <div class="split-grid">
+        <div class="split-pane">
+          <div class="pane-header header-student">Student Portal (Rahul Sharma) <a href="/student" target="_blank" title="Open full screen">&#10066;</a></div>
+          <iframe src="/student" id="iframe-student"></iframe>
+        </div>
+        <div class="split-pane">
+          <div class="pane-header header-parent">Parent Portal (Mrs. Sharma) <a href="/parent" target="_blank" title="Open full screen">&#10066;</a></div>
+          <iframe src="/parent" id="iframe-parent"></iframe>
+        </div>
+        <div class="split-pane">
+          <div class="pane-header header-staff">Staff Portal (Teacher Mr. Kumar) <a href="/staff" target="_blank" title="Open full screen">&#10066;</a></div>
+          <iframe src="/staff" id="iframe-staff"></iframe>
+        </div>
+        <div class="split-pane">
+          <div class="pane-header header-mgmt">Management Portal (Principal) <a href="/management" target="_blank" title="Open full screen">&#10066;</a></div>
+          <iframe src="/management" id="iframe-management"></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE DATA SYNC INSPECTOR -->
+    <section class="inspector-section">
+      <div class="inspector-header">
+        <div class="inspector-title">
+          <span class="pulse-dot"></span> Live School ERP DB Inspector
+        </div>
+        <span class="inspector-tag">Shared Memory Cache</span>
+      </div>
+      
+      <div class="inspector-body">
+        <!-- Students list -->
+        <div class="inspector-panel">
+          <h3>Student Directory & Attendance</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Roll ID</th>
+                  <th>Student Name</th>
+                  <th>Class</th>
+                  <th>Parent</th>
+                  <th>Attendance %</th>
+                </tr>
+              </thead>
+              <tbody id="inspector-students-body">
+                <tr><td colspan="5" class="loading-cell">Loading database dump...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Escalations list -->
+        <div class="inspector-panel">
+          <h3>Support Ticket & Call Escalations Log</h3>
+          <div class="escalation-log-list" id="inspector-escalations-log">
+            <div class="loading-cell">Loading logs...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>XYZ AI School ERP Ecosystem • Built as a standalone Applied AI application.</p>
+  </footer>
+
+  <script>
+    // Handle Save API Key
+    const keyInput = document.getElementById("gemini-key-input");
+    const saveBtn = document.getElementById("save-key-btn");
+
+    // Load key on load
+    if (localStorage.getItem("gemini_api_key")) {
+      keyInput.value = localStorage.getItem("gemini_api_key");
+    }
+
+    saveBtn.addEventListener("click", () => {
+      const val = keyInput.value.trim();
+      if (val) {
+        localStorage.setItem("gemini_api_key", val);
+        alert("API Key saved to browser local storage. AI assistant widgets will now use live Gemini modeling.");
+      } else {
+        localStorage.removeItem("gemini_api_key");
+        alert("API Key cleared. Widgets will fall back to the offline local NLP engine.");
+      }
+      refreshIframes();
+    });
+
+    // View Switching
+    const viewCardsBtn = document.getElementById("view-cards-btn");
+    const viewSplitBtn = document.getElementById("view-split-btn");
+    const portalsView = document.getElementById("portals-view");
+    const splitView = document.getElementById("split-view-panel");
+
+    viewCardsBtn.addEventListener("click", () => {
+      viewCardsBtn.classList.add("active");
+      viewSplitBtn.classList.remove("active");
+      portalsView.classList.add("active");
+      splitView.classList.remove("active");
+    });
+
+    viewSplitBtn.addEventListener("click", () => {
+      viewSplitBtn.classList.add("active");
+      viewCardsBtn.classList.remove("active");
+      splitView.classList.add("active");
+      portalsView.classList.remove("active");
+      // Force reload iframes to pull keys
+      refreshIframes();
+    });
+
+    function refreshIframes() {
+      ['iframe-student', 'iframe-parent', 'iframe-staff', 'iframe-management'].forEach(id => {
+        const iframe = document.getElementById(id);
+        if (iframe) iframe.src = iframe.src;
+      });
+    }
+
+    // Live Database Sync Poller
+    function pollDatabase() {
+      fetch('/api/db-dump')
+        .then(res => res.json())
+        .then(data => {
+          updateStudentsTable(data.students);
+          updateEscalationsLog(data.escalations);
+        })
+        .catch(err => console.error("Database sync inspector error:", err));
+    }
+
+    function updateStudentsTable(students) {
+      const tbody = document.getElementById("inspector-students-body");
+      if (!tbody) return;
+
+      if (!students || students.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No student records found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = students.map(s => {
+        const attendanceClass = s.attendance >= 90 ? 'text-success' : (s.attendance >= 85 ? 'text-warning' : 'text-danger');
+        return `
+          <tr>
+            <td><strong>${s.id}</strong></td>
+            <td>${s.name}</td>
+            <td>${s.class}</td>
+            <td>${s.parentName}</td>
+            <td><span class="att-num ${attendanceClass}">${s.attendance}%</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateEscalationsLog(escalations) {
+      const log = document.getElementById("inspector-escalations-log");
+      if (!log) return;
+
+      if (!escalations || escalations.length === 0) {
+        log.innerHTML = `<div class="empty-log-state">No escalations registered yet. Try submitting one from the Parent Portal chat widget.</div>`;
+        return;
+      }
+
+      log.innerHTML = escalations.map(e => {
+        const badgeClass = e.type === "Teacher Call" ? 'badge-staff' : 'badge-mgmt';
+        const dateStr = new Date(e.timestamp).toLocaleTimeString();
+        return `
+          <div class="log-item">
+            <div class="log-item-header">
+              <span class="badge ${badgeClass}">${e.type}</span>
+              <span class="log-time">${dateStr}</span>
+            </div>
+            <div class="log-msg">"${e.message}"</div>
+            <div class="log-author">Requested by: <strong>${e.userName}</strong> (${e.userRole})</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Listen to messages from child portals for real-time synchronization
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'XYZ_DATA_SYNC') {
+        console.log("[ERP Hub] Sync message received, updating DB Inspector and other views...");
+        pollDatabase();
+        // Propagate sync down to all other frames
+        const frames = ['iframe-student', 'iframe-parent', 'iframe-staff', 'iframe-management'];
+        frames.forEach(id => {
+          const iframe = document.getElementById(id);
+          if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ type: 'XYZ_DATA_SYNC_SYNCED' }, '*');
+          }
+        });
+      }
+    });
+
+    // Start Poller
+    pollDatabase();
+    setInterval(pollDatabase, 2000); // Poll database dump every 2 seconds
+  </script>
+</body>
+</html>

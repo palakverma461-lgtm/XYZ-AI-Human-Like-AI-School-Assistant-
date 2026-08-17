@@ -1,0 +1,32 @@
+[
+  {
+    "id": "doc_attendance_policy",
+    "title": "School Attendance Regulations",
+    "category": "Policy",
+    "content": "All students must maintain a minimum attendance threshold of 75% per semester. Attendance under 75% leads to automatic academic probation. If attendance falls below 65%, students are disqualified from final examinations unless a medical waiver is submitted. Excused absences require a parent note."
+  },
+  {
+    "id": "doc_grading_scale",
+    "title": "Grading System and GPA Calculations",
+    "category": "Policy",
+    "content": "Student grades are calculated on a letter scale: A+ (95-100%, GPA 4.0), A (90-94%, GPA 3.75), B+ (85-89%, GPA 3.5), B (80-84%, GPA 3.0), C+ (75-79%, GPA 2.5), C (70-74%, GPA 2.0). Any score below 70% is a failing grade (F) requiring re-examination."
+  },
+  {
+    "id": "doc_syllabus_math",
+    "title": "Mathematics Syllabus - Class 10",
+    "category": "Syllabus",
+    "content": "The Mathematics syllabus for Class 10 covers: Chapter 1: Real Numbers, Chapter 2: Polynomials, Chapter 3: Quadratic Equations, Chapter 4: Arithmetic Progressions, Chapter 5: Trigonometry, and Chapter 6: Statistics and Probability. Mid-terms cover chapters 1 to 3."
+  },
+  {
+    "id": "doc_syllabus_science",
+    "title": "Science Curriculum - Class 10",
+    "category": "Syllabus",
+    "content": "The Science syllabus for Class 10 covers: Physics (Light Reflection/Refraction, Human Eye), Chemistry (Chemical Reactions, Acids/Bases, Carbon Compounds), and Biology (Life Processes, Control and Coordination, Heredity). Practical exams account for 20% of final marks."
+  },
+  {
+    "id": "doc_faq_timing",
+    "title": "School Working Hours & Calendar",
+    "category": "FAQ",
+    "content": "School hours are Monday through Friday, 8:00 AM to 2:30 PM. Saturday classes are conducted only for high school students (grades 10-12) from 9:00 AM to 12:30 PM on the 1st and 3rd Saturdays. Public holidays align with the national board academic calendar."
+  }
+]

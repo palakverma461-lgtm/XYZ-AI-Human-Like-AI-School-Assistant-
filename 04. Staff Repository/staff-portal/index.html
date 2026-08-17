@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Portal | XYZ Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/shared/xyz-ai-widget.css">
+</head>
+<body data-user-role="teacher" data-user-name="Mr. Kumar">
+
+  <div class="glow-container">
+    <div class="glow-sphere"></div>
+  </div>
+
+  <nav>
+    <div class="nav-brand">
+      <span class="logo-accent">XYZ</span> Staff
+    </div>
+    <div class="nav-profile">
+      <div class="profile-details">
+        <span class="user-name">Mr. Kumar</span>
+        <span class="user-sub">Teacher • Mathematics • Class 10-A</span>
+      </div>
+      <div class="avatar">MK</div>
+    </div>
+  </nav>
+
+  <main class="dashboard">
+    <header class="dash-header">
+      <h1>Staff Dashboard</h1>
+      <p class="dash-subtitle">Manage class rosters, record student attendance, and monitor parent escalation requests.</p>
+    </header>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <span class="stat-label">Assigned Class</span>
+        <span class="stat-val">Class 10-A</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Class Attendance Avg</span>
+        <span class="stat-val" id="class-avg-text">89.2%</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Roster Count</span>
+        <span class="stat-val">4 Students</span>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- Attendance Roster Card -->
+      <div class="dash-card roster-card">
+        <h2>Attendance Roster (Class 10-A)</h2>
+        <form id="roster-form">
+          <div class="roster-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Roll ID</th>
+                  <th>Student Name</th>
+                  <th>Status</th>
+                  <th>Absence Reason</th>
+                </tr>
+              </thead>
+              <tbody id="roster-tbody">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <button type="submit" class="btn btn-submit-roster">Submit Attendance Roster</button>
+        </form>
+        <div class="success-alert" id="roster-success-msg">Roster updated and broadcasted successfully!</div>
+      </div>
+
+      <!-- Parental Escalations Notice Card -->
+      <div class="dash-card alerts-card">
+        <h2>Active Parental Call Requests</h2>
+        <div class="escalations-list" id="teacher-escalations-list">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/shared/xyz-ai-widget.js" defer></script>
+
+  <script>
+    function syncPortalData() {
+      fetch('/api/db-dump')
+        .then(res => res.json())
+        .then(data => {
+          // Render Roster list
+          const rosterStudents = data.students.filter(s => s.class === "Class 10-A");
+          renderRoster(rosterStudents);
+
+          // Calculate and render class average
+          const sum = rosterStudents.reduce((acc, curr) => acc + curr.attendance, 0);
+          const avg = (sum / rosterStudents.length).toFixed(1);
+          document.getElementById("class-avg-text").innerText = `${avg}%`;
+
+          // Render Parent Escalations
+          const teacherCalls = data.escalations.filter(e => e.type === "Teacher Call");
+          renderEscalations(teacherCalls);
+        })
+        .catch(err => console.error("Staff Portal sync error:", err));
+    }
+
+    function renderRoster(students) {
+      const tbody = document.getElementById("roster-tbody");
+      if (!tbody) return;
+
+      tbody.innerHTML = students.map(s => {
+        // Checks if student was absent today (2026-08-15)
+        const todayDate = new Date().toISOString().split('T')[0];
+        const todayLog = s.history.find(h => h.date === todayDate);
+        
+        const isAbsent = todayLog && todayLog.status === 'Absent';
+        const reason = (todayLog && todayLog.reason) || '';
+
+        return `
+          <tr data-student-name="${s.name}">
+            <td><strong>${s.id}</strong></td>
+            <td>${s.name}</td>
+            <td>
+              <div class="toggle-status-group">
+                <label class="status-btn present">
+                  <input type="radio" name="status-${s.id}" value="Present" ${!isAbsent ? 'checked' : ''} onchange="toggleReasonInput(this)">
+                  <span>Present</span>
+                </label>
+                <label class="status-btn absent">
+                  <input type="radio" name="status-${s.id}" value="Absent" ${isAbsent ? 'checked' : ''} onchange="toggleReasonInput(this)">
+                  <span>Absent</span>
+                </label>
+              </div>
+            </td>
+            <td>
+              <input type="text" class="reason-input" name="reason-${s.id}" placeholder="e.g. Fever, Family Function" value="${reason}" ${!isAbsent ? 'disabled' : ''}>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleReasonInput(radio) {
+      const tr = radio.closest('tr');
+      const reasonInput = tr.querySelector('.reason-input');
+      if (radio.value === 'Absent') {
+        reasonInput.removeAttribute('disabled');
+        reasonInput.focus();
+      } else {
+        reasonInput.setAttribute('disabled', 'true');
+        reasonInput.value = '';
+      }
+    }
+
+    function renderEscalations(escalations) {
+      const list = document.getElementById("teacher-escalations-list");
+      if (!list) return;
+
+      if (!escalations || escalations.length === 0) {
+        list.innerHTML = `<div class="empty-state">No call requests pending.</div>`;
+        return;
+      }
+
+      list.innerHTML = escalations.map(e => {
+        const timeStr = new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="alert-item">
+            <div class="alert-item-header">
+              <span class="parent-name"><strong>${e.userName}</strong></span>
+              <span class="alert-time">${timeStr}</span>
+            </div>
+            <p class="alert-msg">"${e.message}"</p>
+            <div class="alert-footer">
+              <button class="btn btn-action-call" onclick="triggerMockCall('${e.userName}', '${e.id}')">Mock Call &rarr;</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function triggerMockCall(name, ticketId) {
+      alert(`Initiating mock call session with ${name} regarding ticket ${ticketId}. Chat widget remains ready to assist.`);
+    }
+
+    // Submit Attendance Roster
+    const rosterForm = document.getElementById("roster-form");
+    rosterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      
+      const rows = document.querySelectorAll("#roster-tbody tr");
+      const promises = [];
+      const todayDate = new Date().toISOString().split('T')[0];
+
+      rows.forEach(tr => {
+        const studentName = tr.getAttribute('data-student-name');
+        const rollId = tr.querySelector('input[type="radio"]').name.replace('status-', '');
+        
+        const status = tr.querySelector('input[type="radio"]:checked').value;
+        const reason = tr.querySelector('.reason-input').value;
+
+        // Post request to record attendance
+        promises.push(
+          fetch('/api/attendance', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-role': 'teacher' // Role auth header
+            },
+            body: JSON.stringify({
+              studentName,
+              date: todayDate,
+              status,
+              reason
+            })
+          })
+        );
+      });
+
+      Promise.all(promises)
+        .then(() => {
+          // Show success message
+          const msg = document.getElementById("roster-success-msg");
+          msg.classList.add("active");
+          setTimeout(() => msg.classList.remove("active"), 3000);
+
+          // Dispatch sync notification
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'XYZ_DATA_SYNC' }, '*');
+          }
+          const syncEvent = new CustomEvent('xyz-erp-sync');
+          document.dispatchEvent(syncEvent);
+
+          syncPortalData();
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Failed to submit roster updates. Please check authorization.");
+        });
+    });
+
+    // Cross-iframe communication listeners
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'XYZ_DATA_SYNC_SYNCED') {
+        console.log("[Staff Portal] Sync message received, updating dashboard UI...");
+        syncPortalData();
+      }
+    });
+
+    document.addEventListener('xyz-erp-sync', () => {
+      console.log("[Staff Portal] Local widget sync triggered, reloading data...");
+      syncPortalData();
+    });
+
+    // Load initial states
+    syncPortalData();
+  </script>
+</body>
+</html>

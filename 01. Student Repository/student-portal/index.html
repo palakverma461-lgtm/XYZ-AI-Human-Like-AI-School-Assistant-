@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal | XYZ Academy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/shared/xyz-ai-widget.css">
+</head>
+<body data-user-role="student" data-user-name="Rahul Sharma">
+
+  <div class="glow-container">
+    <div class="glow-sphere"></div>
+  </div>
+
+  <nav>
+    <div class="nav-brand">
+      <span class="logo-accent">XYZ</span> Portal
+    </div>
+    <div class="nav-profile">
+      <div class="profile-details">
+        <span class="user-name">Rahul Sharma</span>
+        <span class="user-sub">Student • S101 • Class 10-A</span>
+      </div>
+      <div class="avatar">RS</div>
+    </div>
+  </nav>
+
+  <main class="dashboard">
+    <header class="dash-header">
+      <h1>Student Dashboard</h1>
+      <p class="dash-subtitle">Review your progress, schedules, and active academic performance metrics.</p>
+    </header>
+
+    <div class="dash-grid">
+      <!-- Attendance Card -->
+      <div class="dash-card att-card">
+        <h2>Attendance Status</h2>
+        <div class="gauge-box">
+          <div class="circular-progress" id="attendance-gauge" style="background: conic-gradient(var(--accent-color) 328.32deg, #1e293b 0deg);">
+            <div class="circular-value" id="attendance-value">91.2%</div>
+          </div>
+        </div>
+        <div class="gauge-details">
+          <div class="detail-col">
+            <span class="detail-label">Status</span>
+            <span class="detail-val text-success">Excellent</span>
+          </div>
+          <div class="detail-col">
+            <span class="detail-label">Total Absences</span>
+            <span class="detail-val" id="absent-count">1 Day</span>
+          </div>
+          <div class="detail-col">
+            <span class="detail-label">Absence Risk (ML)</span>
+            <span class="detail-val text-success" id="pred-risk-val">--%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Card -->
+      <div class="dash-card schedule-card">
+        <h2>Today's Class Schedule</h2>
+        <div class="timeline">
+          <div class="timeline-item active">
+            <span class="time">09:00 AM</span>
+            <span class="dot"></span>
+            <div class="class-info">
+              <span class="class-title">Mathematics (Algebra)</span>
+              <span class="class-room">Room 302 • Mr. Kumar</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <span class="time">10:30 AM</span>
+            <span class="dot"></span>
+            <div class="class-info">
+              <span class="class-title">Science (Physics)</span>
+              <span class="class-room">Physics Lab • Mrs. Gupta</span>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <span class="time">12:00 PM</span>
+            <span class="dot"></span>
+            <div class="class-info">
+              <span class="class-title">English Literature</span>
+              <span class="class-room">Room 101 • Miss Andrews</span>
+            </div>
+          </div>
+          <div class="timeline-item break">
+            <span class="time">01:00 PM</span>
+            <span class="dot"></span>
+            <div class="class-info">
+              <span class="class-title">Lunch Break</span>
+              <span class="class-room">School Cafeteria</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Report Card -->
+      <div class="dash-card report-card">
+        <h2>Academic Record (Term 1)</h2>
+        <div class="grade-list">
+          <div class="grade-item">
+            <div class="grade-header">
+              <span class="subject">Mathematics</span>
+              <span class="grade-badge grade-a">A</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 92%;"></div></div>
+          </div>
+          <div class="grade-item">
+            <div class="grade-header">
+              <span class="subject">Science</span>
+              <span class="grade-badge grade-b">B+</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
+          </div>
+          <div class="grade-item">
+            <div class="grade-header">
+              <span class="subject">English</span>
+              <span class="grade-badge grade-a">A-</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 90%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notice Board -->
+      <div class="dash-card notice-card">
+        <h2>Announcements</h2>
+        <div class="notice-list">
+          <div class="notice-item">
+            <div class="notice-meta">Aug 14 • Academic Office</div>
+            <p class="notice-text">Midterm examinations commence on September 10th. Date sheet has been published.</p>
+          </div>
+          <div class="notice-item">
+            <div class="notice-meta">Aug 12 • Sports Board</div>
+            <p class="notice-text">Registrations for the Annual Athletics Meet are now open. Register at gym khana.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/shared/xyz-ai-widget.js" defer></script>
+  
+  <script>
+    // Live synchronization handler
+    function syncPortalData() {
+      fetch('/api/db-dump')
+        .then(res => res.json())
+        .then(data => {
+          const rahul = data.students.find(s => s.id === "S101");
+          if (rahul) {
+            updateAttendanceGauge(rahul.attendance, rahul.history);
+          }
+        })
+        .catch(err => console.error("Portal sync error:", err));
+
+      // Fetch ML Risk Predictor
+      fetch('/api/predictions/S101')
+        .then(res => res.json())
+        .then(pred => {
+          const riskEl = document.getElementById("pred-risk-val");
+          if (riskEl) {
+            riskEl.innerText = `${pred.absenceRisk}%`;
+            riskEl.className = "detail-val " + (pred.absenceRisk >= 60 ? 'text-danger' : (pred.absenceRisk >= 35 ? 'text-warning' : 'text-success'));
+          }
+        })
+        .catch(err => console.error("Portal ML prediction fetch error:", err));
+    }
+
+    function updateAttendanceGauge(attendance, history) {
+      const gauge = document.getElementById("attendance-gauge");
+      const valText = document.getElementById("attendance-value");
+      const absText = document.getElementById("absent-count");
+      
+      if (!gauge || !valText || !absText) return;
+
+      valText.innerText = `${attendance}%`;
+      
+      // Calculate conic gradient degree (360 degrees * attendance percentage)
+      const deg = (attendance / 100) * 360;
+      gauge.style.background = `conic-gradient(var(--accent-color) ${deg}deg, #1e293b 0deg)`;
+
+      // Count absences
+      const absCount = history.filter(h => h.status === 'Absent').length;
+      absText.innerText = `${absCount} Day${absCount !== 1 ? 's' : ''}`;
+    }
+
+    // Event listener for synchronizations across frames
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'XYZ_DATA_SYNC_SYNCED') {
+        console.log("[Student Portal] sync message received, reloading data...");
+        syncPortalData();
+        updateActiveLecture();
+      }
+    });
+
+    document.addEventListener('xyz-erp-sync', () => {
+      console.log("[Student Portal] Local widget sync triggered, reloading data...");
+      syncPortalData();
+      updateActiveLecture();
+    });
+
+    function updateActiveLecture() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const currentMin = hours * 60 + minutes;
+
+      const timelineItems = document.querySelectorAll('.timeline-item');
+      timelineItems.forEach(item => item.classList.remove('active'));
+
+      // Time slots:
+      // 9:00 AM (540 mins) to 10:30 AM (630 mins)
+      // 10:30 AM (630 mins) to 12:00 PM (720 mins)
+      // 12:00 PM (720 mins) to 1:00 PM (780 mins)
+      // 1:00 PM (780 mins) to 2:00 PM (840 mins)
+      if (currentMin >= 540 && currentMin < 630) {
+        timelineItems[0]?.classList.add('active');
+      } else if (currentMin >= 630 && currentMin < 720) {
+        timelineItems[1]?.classList.add('active');
+      } else if (currentMin >= 720 && currentMin < 780) {
+        timelineItems[2]?.classList.add('active');
+      } else if (currentMin >= 780 && currentMin < 840) {
+        timelineItems[3]?.classList.add('active');
+      } else {
+        if (currentMin < 540) {
+          timelineItems[0]?.classList.add('active');
+        }
+      }
+    }
+
+    // Start Poller/loader
+    syncPortalData();
+    updateActiveLecture();
+    // Refresh schedule every minute to keep timeline active states accurate
+    setInterval(updateActiveLecture, 60000);
+  </script>
+</body>
+</html>
