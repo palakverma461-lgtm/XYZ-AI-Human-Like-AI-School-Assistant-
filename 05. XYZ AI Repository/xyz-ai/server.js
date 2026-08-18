@@ -50,6 +50,10 @@ app.use('/management', express.static(PORTAL_PATHS.management));
 app.use('/staff', express.static(PORTAL_PATHS.staff));
 app.use('/', express.static(PORTAL_PATHS.hub));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(PORTAL_PATHS.hub, 'index.html'));
+});
+
 // Serve a shared directory for the XYZ AI Widget assets
 app.use('/shared', express.static(path.join(__dirname, 'public/shared')));
 
