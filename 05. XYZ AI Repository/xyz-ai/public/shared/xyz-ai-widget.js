@@ -18,7 +18,7 @@
 
   // Get API Base URL (relative if on the same server, or fallback to the deployed Render URL if running locally from files)
   const API_BASE_URL = (window.location.origin.includes('file://') || window.location.origin.includes('null'))
-    ? "https://xyz-ai-human-like-ai-school-assistant.onrender.com"
+    ? "https://xyz-ai-human-like-ai-school-assistant-3.onrender.com"
     : "";
 
   // Language tags map for STT / TTS
