@@ -1,0 +1,10 @@
+{
+  "name": "xyz-ai-school-assistant-root",
+  "version": "1.0.0",
+  "description": "Root configuration to build frontend and start backend on Render",
+  "scripts": {
+    "install-all": "npm --prefix \"05. XYZ AI Repository/xyz-ai\" install && npm --prefix ml-react-dashboard install",
+    "build": "npm --prefix ml-react-dashboard run build",
+    "start": "node \"05. XYZ AI Repository/xyz-ai/server.js\""
+  }
+}

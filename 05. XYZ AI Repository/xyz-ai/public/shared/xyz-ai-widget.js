@@ -16,6 +16,11 @@
   // Web Audio Context for synthesized sound FX (Zero-file dependency!)
   let audioCtx = null;
 
+  // Get API Base URL (relative if on the same server, or fallback to the deployed Render URL if running locally from files)
+  const API_BASE_URL = (window.location.origin.includes('file://') || window.location.origin.includes('null'))
+    ? "https://xyz-ai-human-like-ai-school-assistant.onrender.com"
+    : "";
+
   // Language tags map for STT / TTS
   const LANG_TAGS = {
     english: { tag: "en-US", label: "English" },
@@ -445,7 +450,7 @@
     appendMessage("user", `I want to proceed with: ${type}`);
     showTypingIndicator();
     
-    fetch('/api/escalation', {
+    fetch(`${API_BASE_URL}/api/escalation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -499,7 +504,7 @@
       headers['x-gemini-key'] = savedKey;
     }
 
-    fetch('/api/chat', {
+    fetch(`${API_BASE_URL}/api/chat`, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(body)

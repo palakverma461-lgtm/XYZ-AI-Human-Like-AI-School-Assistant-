@@ -143,7 +143,7 @@ CRITICAL INSTRUCTIONS:
 4. Keep answers short, natural, conversational, and direct. Do not output raw JSON, system variables, or markdown code blocks in greetings.
 5. If the user asks you to perform an action (e.g. mark attendance, escalate), say you are performing it, and the UI layer will execute it.`;
 
-        const model = genAI.getGenerativeModel({ 
+        const model = activeGenAI.getGenerativeModel({ 
           model: "gemini-1.5-flash",
           systemInstruction: systemInstruction
         });
