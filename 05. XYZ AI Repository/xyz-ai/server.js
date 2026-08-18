@@ -35,25 +35,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serving the static files for the four portals using relative workspace paths
-const PORTAL_PATHS = {
-  student: path.join(__dirname, '../../01. Student Repository/student-portal'),
-  parent: path.join(__dirname, '../../02. Parent Repository/parent-portal'),
-  management: path.join(__dirname, '../../03. Management Repository/management-portal'),
-  staff: path.join(__dirname, '../../04. Staff Repository/staff-portal'),
-  hub: path.join(__dirname, '../../ml-react-dashboard/dist')
-};
-
-// Static route maps
-app.use('/student', express.static(PORTAL_PATHS.student));
-app.use('/parent', express.static(PORTAL_PATHS.parent));
-app.use('/management', express.static(PORTAL_PATHS.management));
-app.use('/staff', express.static(PORTAL_PATHS.staff));
-app.use('/', express.static(PORTAL_PATHS.hub));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(PORTAL_PATHS.hub, 'index.html'));
-});
-
+// API-only backend for Render
 // Serve a shared directory for the XYZ AI Widget assets
 app.use('/shared', express.static(path.join(__dirname, 'public/shared')));
 
